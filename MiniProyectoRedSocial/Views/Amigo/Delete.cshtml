@@ -1,0 +1,24 @@
+﻿@model MiniProyectoRedSocial.Core.Application.ViewModels.Amigos.SaveAmigoViewModel
+
+@{
+    ViewData["Title"] = "Eliminar Amigo";
+}
+
+<div class="row">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header bg-primary text-light">
+                <h4>¿Está seguro que desea eliminar este amigo?</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-controller="Amigo" asp-action="DeletePost">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger">Aceptar</button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

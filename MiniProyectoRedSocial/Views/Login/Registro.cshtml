@@ -1,0 +1,88 @@
+﻿@model MiniProyectoRedSocial.Core.Application.ViewModels.Usuarios.SaveUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Nuevo usuario";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6 offset-3">
+            <div class="card">
+                <div class="card-header bg-primary text-light">
+                    <h4>Creando un nuevo usuario</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" asp-controller="Login" asp-action="Registro">
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre: </label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Apellido" class="form-label">Apellido: </label>
+                            <input asp-for="Apellido" class="form-control" />
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">Correo: </label>
+                            <input asp-for="Correo" class="form-control" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NombreUsuario" class="form-label">Nombre de usuario: </label>
+                            <input asp-for="NombreUsuario" class="form-control" />
+                            <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Telefono" class="form-label">Teléfono: </label>
+                            <input asp-for="Telefono" class="form-control"
+                                   pattern="^(809|829|849)[0-9]{7}$"
+                                   maxlength="10"
+                                   oninput="validatePhoneNumber(this)" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="File" class="form-label">Seleccione una imagen: </label>
+                            <input asp-for="File" class="form-control" type="file" />
+                            <span asp-validation-for="File" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Contraseña" class="form-label">Contraseña: </label>
+                            <input asp-for="Contraseña" class="form-control" />
+                            <span asp-validation-for="Contraseña" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ConfirmarContraseña" class="form-label">Confirme la contraseña: </label>
+                            <input asp-for="ConfirmarContraseña" class="form-control" />
+                            <span asp-validation-for="ConfirmarContraseña" class="text-danger"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Activo" value="false"/>
+
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a asp-controller="Login" asp-action="Index" class="btn btn-secondary">Volver atrás</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validatePhoneNumber(input) {
+        const value = input.value;
+
+        input.value = value.replace(/\D/g, '');
+
+        if (!/^809|829|849/.test(input.value)) {
+            input.setCustomValidity('El número debe comenzar con 809, 829 o 849.');
+        } else {
+            input.setCustomValidity('');
+        }
+
+        if (input.value.length > 10) {
+            input.value = input.value.slice(0, 10);
+        }
+    }
+</script>

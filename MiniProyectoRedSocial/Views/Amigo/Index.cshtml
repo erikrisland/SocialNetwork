@@ -1,0 +1,162 @@
+﻿@model List<MiniProyectoRedSocial.Core.Application.ViewModels.Amigos.AmigoViewModel>
+
+@{
+    ViewData["Title"] = "Lista de Amigos";
+    var publicaciones = ViewBag.Publicaciones as List<MiniProyectoRedSocial.Core.Application.ViewModels.Publicaciones.PublicacionViewModel>;
+
+    Func<string, string> ObtenerIdVideoYoutube = linkYoutube =>
+    {
+        if (!string.IsNullOrWhiteSpace(linkYoutube) && linkYoutube.Contains("youtube.com/watch?v="))
+        {
+            int indiceInicio = linkYoutube.IndexOf("watch?v=") + "watch?v=".Length;
+            int indiceFin = linkYoutube.IndexOf('&', indiceInicio);
+
+            if (indiceFin != -1)
+            {
+                return linkYoutube.Substring(indiceInicio, indiceFin - indiceInicio);
+            }
+            else
+            {
+                return linkYoutube.Substring(indiceInicio);
+            }
+        }
+
+        return string.Empty;
+    };
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="col-8 offset-2 pb-2">
+                <a asp-controller="Amigo" asp-action="AgregarAmigo" class="btn btn-primary">Agregar Amigo</a>
+            </div>
+            <h3>Lista de Amigos</h3>
+            <div class="list-group">
+                @foreach (var amigo in Model)
+                {
+                    <div class="list-group-item">
+                        <img src="@amigo.FotoPerfil" alt="Imagen de perfil" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                        <span>@amigo.Nombre @amigo.Apellido</span>
+                        <p><strong>Usuario:</strong> @amigo.NombreUsuario</p>
+                        <div class="mt-1">
+                            <a asp-controller="Amigo" asp-action="Delete" asp-route-id="@amigo.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h3>Publicaciones de Amigos</h3>
+            @if (publicaciones == null || !publicaciones.Any())
+            {
+                <p>No hay publicaciones de amigos disponibles.</p>
+            }
+            else
+            {
+                @foreach (var publicacion in publicaciones)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="@publicacion.UsuarioImagenPerfil" alt="Imagen de perfil" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="ms-2">
+                                    <h5 class="mb-0">@publicacion.UsuarioNombre @publicacion.UsuarioApellido</h5>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(publicacion.Contenido))
+                            {
+                                <p style="font-size: 25px;">@publicacion.Contenido</p>
+                            }
+                            @if (!string.IsNullOrEmpty(publicacion.Imagen))
+                            {
+                                <div class="text-center">
+                                    <img src="@publicacion.Imagen" class="img-fluid mx-auto d-block" />
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(publicacion.VideoUrl))
+                            {
+                                var idVideo = ObtenerIdVideoYoutube(publicacion.VideoUrl);
+                                if (!string.IsNullOrEmpty(idVideo))
+                                {
+                                    <div class="text-center mt-3">
+                                        <iframe width="560" height="315" src="https://www.youtube.com/embed/@idVideo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a href="@publicacion.VideoUrl">Ver Video</a>
+                                }
+                            }
+                            <div class="text-muted">
+                                Publicado el @publicacion.FechaHora.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+
+                            <div class="mt-3">
+                                <h6>Comentarios:</h6>
+                                @foreach (var comentario in publicacion.Comentarios.Where(c => !c.ComentarioPadreId.HasValue))
+                                {
+                                    <div class="d-flex align-items-start mb-2 comentario">
+                                        <img src="@comentario.Usuario.FotoPerfil" alt="Imagen de perfil" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <div class="ms-2">
+                                            <p class="mb-1"><strong>@comentario.Usuario.Nombre @comentario.Usuario.Apellido</strong></p>
+                                            <p class="mb-1">@comentario.Contenido</p>
+                                            <small class="text-muted">@comentario.FechaHora.ToString("dd/MM/yyyy HH:mm")</small>
+
+                                            <button type="button" class="btn btn-link responder-btn text-primary mt-1" data-comentario-id="@comentario.Id" style="text-decoration: none;">Responder</button>
+
+                                            <form asp-action="AddSubComentario" method="post" class="mt-2 formulario-subcomentario" style="display: none; padding-left: 2rem;">
+                                                <input type="hidden" name="PublicacionId" value="@publicacion.Id" />
+                                                <input type="hidden" name="ComentarioPadreId" value="@comentario.Id" />
+                                                <div class="form-group">
+                                                    <textarea name="Contenido" class="form-control" placeholder="Escribe una respuesta..." required></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-1">Responder</button>
+                                            </form>
+
+                                            @if (comentario.SubComentarios != null && comentario.SubComentarios.Any())
+                                            {
+                                                <div class="mt-2 subcomentarios">
+                                                    @foreach (var subComentario in comentario.SubComentarios)
+                                                    {
+                                                        <div class="d-flex align-items-start mb-2 subcomentario" style="padding-left: 2rem;">
+                                                            <img src="@subComentario.Usuario.FotoPerfil" alt="Imagen de perfil" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                                            <div class="ms-2">
+                                                                <p class="mb-1"><strong>@subComentario.Usuario.Nombre @subComentario.Usuario.Apellido</strong></p>
+                                                                <p class="mb-1">@subComentario.Contenido</p>
+                                                                <small class="text-muted">@subComentario.FechaHora.ToString("dd/MM/yyyy HH:mm")</small>
+                                                                <button type="button" class="btn btn-link responder-btn text-primary mt-1" data-comentario-id="@subComentario.Id" style="text-decoration: none;">Responder</button>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <form asp-action="AddComentario" method="post" class="mt-2">
+                                <input type="hidden" name="PublicacionId" value="@publicacion.Id" />
+                                <div class="form-group">
+                                    <textarea name="Contenido" class="form-control" placeholder="Escribe un comentario..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-1">Comentar</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".responder-btn").click(function () {
+                var comentarioId = $(this).data("comentario-id");
+                $(this).closest(".comentario").find(".formulario-subcomentario").toggle();
+            });
+        });
+    </script>
+}

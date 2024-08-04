@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MiniProyectoRedSocial.Core.Application\MiniProyectoRedSocial.Core.Application.csproj" />
+    <ProjectReference Include="..\MiniProyectoRedSocial.Core.Domain\MiniProyectoRedSocial.Core.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
